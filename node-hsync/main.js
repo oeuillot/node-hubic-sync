@@ -5,6 +5,7 @@ var Hubic = require('./hubic.js');
 var HFile = require('./hfile.js');
 var LFile = require('./lfile.js');
 var Syncer = require('./syncer.js');
+var Authentification = require('./authentification.js');
 
 program.option("-u, --username <login>", "Hubic username");
 program.option("-p, --passwd <passwd>", "Hubic password");
