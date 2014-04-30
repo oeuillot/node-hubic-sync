@@ -1,6 +1,7 @@
 var spawn = require('child_process').spawn;
 var readline = require('readline');
 var fs = require('fs');
+var https = require('https');
 
 var Authentification = function() {
   this.serverPort = 20443;
@@ -32,21 +33,33 @@ Authentification.prototype.process = function(callback) {
   var openssl = spawn("openssl", params);
 
   var self = this;
-  openssl.on('close', function(code) {
-    console.log('Openssl process exited with code ' + code);
+  openssl.on('close',
+      function(code) {
+        console.log('Openssl process exited with code ' + code);
 
-    if (code) {
-      return callback("Failed to create certificate");
-    }
+        if (code) {
+          try {
+            fs.unlinkSync(self.certPath);
+          } catch (x) {
 
-    return self.openServer(function(error, password) {
+          }
+          try {
+            fs.unlinkSync(self.keyPath);
+          } catch (x) {
 
-      fs.unlinkSync(self.certPath);
-      fs.unlinkSync(self.keyPath);
+          }
+          return callback("Failed to create certificate (return code=" + code
+              + ")");
+        }
 
-      return callback(error, password);
-    });
-  });
+        return self.openServer(function(error, password) {
+
+          fs.unlinkSync(self.certPath);
+          fs.unlinkSync(self.keyPath);
+
+          return callback(error, password);
+        });
+      });
 };
 
 Authentification.prototype.tmpFile = function(suffix) {
