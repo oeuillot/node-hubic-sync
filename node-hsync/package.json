@@ -1,0 +1,17 @@
+{
+  "name": "node-hsync",
+  "version": "0.1.0",
+  "description": "Hubic nodejs sync",
+  "main": "main.js",
+  "scripts": {
+   },
+  "repository": "",
+  "keywords": [
+    "Node.js",
+    "Hubic",
+    "sync"
+  ],
+  "author": "Olivier Oeuillot",
+  "license": "BSD",
+  "readmeFilename": "README.md"
+}
