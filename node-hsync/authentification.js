@@ -6,7 +6,7 @@ var Authentification = function() {
   this.serverPort = 20443;
 };
 
-Authentification.prototype.process = function(userName, callback) {
+Authentification.prototype.process = function(callback) {
 
   if (this.permPath && this.certPath) {
     if (!fs.existsSync(this.permPath)) {
@@ -23,9 +23,13 @@ Authentification.prototype.process = function(userName, callback) {
   this.certPath = this.tmpFile("cert");
   this.keyPath = this.tmpFile("key");
 
-  var openssl = spawn("openssl", [ "req", "-newkey", "rsa:2048", "-new",
-      "-nodes", "-x509", "-days", "3650", "-keyout", this.keyPath, "-out",
-      this.certPath, "-subj", "/CN=" + userName + "/OU=hsync" ]);
+  var params = [ "req", "-newkey", "rsa:2048", "-new", "-nodes", "-x509",
+      "-days", "3650", "-keyout", this.keyPath, "-out", this.certPath, "-subj",
+      "/CN=" + this.username + "/OU=hsync" ];
+
+  console.log("Start openssl with parameters " + params);
+
+  var openssl = spawn("openssl", params);
 
   var self = this;
   openssl.on('close', function(code) {
@@ -48,7 +52,8 @@ Authentification.prototype.process = function(userName, callback) {
 Authentification.prototype.tmpFile = function(suffix) {
   var now = new Date();
   var name = [ now.getYear(), now.getMonth(), now.getDate(), '-', process.pid,
-      '-', (Math.random() * 0x100000000 + 1).toString(36), suffix ].join('');
+      '-', (Math.random() * 0x100000000 + 1).toString(36), '.', suffix ]
+      .join('');
 
   return name;
 };
