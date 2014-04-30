@@ -98,3 +98,5 @@ Authentification.prototype.openServer = function(callback) {
 
   server.listen(this.serverPort);
 };
+
+module.exports = Authentification;
