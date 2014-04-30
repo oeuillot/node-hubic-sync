@@ -35,7 +35,7 @@ program.option("--keyPath",
 program.option("--tokenPath", "Specify the path of the last authorized token");
 program.option("--clientID", "Specify the Hubic application Client ID");
 program.option("--clientSecret", "Specify the Hubic application Client Secret");
-p.parse(Process.argv);
+program.parse(Process.argv);
 
 if (!program.username) {
   console.log("Username is not specified");
