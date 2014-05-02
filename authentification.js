@@ -2,6 +2,7 @@ var spawn = require('child_process').spawn;
 var readline = require('readline');
 var fs = require('fs');
 var https = require('https');
+var os = require('os');
 
 var Authentification = function() {
   this.serverPort = 20443;
@@ -9,14 +10,16 @@ var Authentification = function() {
 
 Authentification.prototype.process = function(callback) {
 
-  if (this.permPath && this.certPath) {
-    if (!fs.existsSync(this.permPath)) {
-      return callback("Perm file does not exist: " + this.permPath);
+  if (this.keyPath && this.certPath) {
+    if (!fs.existsSync(this.keyPath)) {
+      return callback("Key file does not exist: " + this.keyPath);
     }
 
     if (!fs.existsSync(this.certPath)) {
       return callback("Cert file does not exist: " + this.certPath);
     }
+
+    console.log("Use key and cert paths");
 
     return this.openServer(callback);
   }
@@ -96,10 +99,21 @@ Authentification.prototype.openServer = function(callback) {
       output : process.stdout
     });
 
+    var ifaces = os.networkInterfaces();
+    var firstHostName = "localhost";
+    for ( var dev in ifaces) {
+      ifaces[dev].forEach(function(details) {
+        if (details.family == 'IPv4' && !details.internal) {
+          firstHostName = details.address;
+        }
+      });
+    }
+
+    var address = server.address();
     process.stdout.write("Register a new personnal application.\n"
         + "Go to https://hubic.com/home/browser/developers/\n"
-        + "Specify 'https://" + server.host + ":" + server.port
-        + "/callback' for the redirection domain.\n")
+        + "Specify 'https://" + firstHostName + ":" + address.port
+        + "/callback/' for the redirection domain.\n")
 
     rl.question("Enter ClientID=", function(answer) {
       self.clientID = answer;
@@ -107,8 +121,8 @@ Authentification.prototype.openServer = function(callback) {
       rl.question("Enter ClientSecret=", function(answer) {
         self.clientSecret = answer;
 
-        process.stdout.write("Go to 'https://" + server.host + ":"
-            + server.port + "/register?client=" + self.username);
+        process.stdout.write("Go to 'https://" + firstHostName + ":"
+            + address.port + "/register?client=" + self.username);
         rl.close();
       });
     });

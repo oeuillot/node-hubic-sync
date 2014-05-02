@@ -5,10 +5,12 @@ var Underscore = require('underscore');
 
 var util = require('util');
 
+/*
 var Ows = Ovh({
   sessionHandler : 'sessionHandler/r4',
   hubic : 'hubic/r5'
 });
+*/
 
 var Hubic = function(username, password, options, callback) {
   var self = this;

@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "description": "Hubic nodejs sync",
   "main": "main.js",
+  "dependencies": {
+    "commander": "latest",
+    "ovh": "latest",
+    "async": "latest",
+    "request": "latest",
+    "sprintf": "latest",
+    "underscore": "latest",
+    "mime": "latest"
+  },
   "scripts": {
    },
   "repository": "",

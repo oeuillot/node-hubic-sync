@@ -1,5 +1,4 @@
 var program = require('commander');
-var Process = require('process');
 var util = require('util');
 var Hubic = require('./hubic.js');
 var HFile = require('./hfile.js');
@@ -29,35 +28,35 @@ program.option("--purge-uploading-files", "Delete not used uploading files");
 program.option("--progress", "Show progress");
 program.option("--versioning",
     "Move modified or deleted file to a backup folder");
-program.option("--certPath",
+program.option("--certPath <path>",
     "Specify the path of the SSL certificate (for authentication process)");
-program.option("--keyPath",
+program.option("--keyPath <path>",
     "Specify the path of the SSL key (for authentication process)");
-program.option("--tokenPath", "Specify the path of the last authorized token");
-program.option("--clientID", "Specify the Hubic application Client ID");
-program.option("--clientSecret", "Specify the Hubic application Client Secret");
-program.parse(Process.argv);
+program.option("--tokenPath <path>", "Specify the path of the last authorized token");
+program.option("--clientID <id>", "Specify the Hubic application Client ID");
+program.option("--clientSecret <secret>", "Specify the Hubic application Client Secret");
+program.parse(process.argv);
 
 if (!program.username) {
   console.log("Username is not specified");
-  Process.exit(1);
+  process.exit(1);
 }
 
 function goHubic() {
 
   if (!program.token) {
     console.log("Token is not specified");
-    Process.exit(1);
+    process.exit(1);
   }
 
   if (!program.source) {
     console.log("Source is not specified");
-    Process.exit(1);
+    process.exit(1);
   }
 
   if (!program.destination) {
     console.log("Destination is not specified");
-    Process.exit(1);
+    process.exit(1);
   }
 
   var hubic = new Hubic(program.username, program.passwd, program, function(

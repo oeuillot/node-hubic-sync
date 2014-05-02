@@ -3,7 +3,6 @@ var URL = require('url');
 var util = require('util');
 var fs = require('fs');
 var stream = require('stream');
-var process = require('process');
 var Sprintf = require('sprintf');
 var Async = require('async');
 var Mime = require('mime');
