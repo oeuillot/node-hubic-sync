@@ -48,9 +48,14 @@ function goHubic() {
 
 		var syncer = new Syncer(hubic, program);
 
+		var destination = program.destination;
+		if (destination.charAt(0) === '/') {
+			destination = destination.substring(1);
+		}
+
 		var hroot = HFile.createRoot(hubic);
 		var lroot = LFile.createRoot(program.source);
-		hroot.find(program.destination, function(error, hfile) {
+		hroot.find(destination, function(error, hfile) {
 			if (error) {
 				console.error("ERROR: " + error);
 				return;
@@ -60,15 +65,16 @@ function goHubic() {
 				throw new Error("Invalid local root " + lroot);
 			}
 			if (!hfile) {
-				console.error("Invalid remote root " + hfile);
-				return;
+				throw new Error("Invalid remote root " + hfile);
 			}
 
 			syncer.sync(lroot, hfile, function(error) {
 				if (error) {
-					console.error("ERROR: " + error);
+					console.error("ERROR: ", error);
 					return;
 				}
+
+				console.log("Done !");
 			});
 		});
 	});
