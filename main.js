@@ -42,7 +42,7 @@ function goHubic() {
 
 	var hubic = new Hubic(program, function(error, hubic) {
 		if (error) {
-			console.error("Error: " + error);
+			console.error("Can not create hubic context: ", error);
 			return;
 		}
 
