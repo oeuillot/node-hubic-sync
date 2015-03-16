@@ -1,8 +1,9 @@
-var Util = require("util");
-var File = require('./file.js');
-var Path = require("path");
-var FS = require("fs");
 var Async = require("async");
+var FS = require("fs");
+var Path = require("path");
+var Util = require("util");
+
+var File = require('./file.js');
 
 var LFile = function(parent, path, lastModified, size, isDirectory, localPath) {
   LFile.super_.call(this, parent, path, lastModified, size, isDirectory,

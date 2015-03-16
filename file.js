@@ -1,64 +1,58 @@
 var File = function(parent, path, lastModified, size, isDirectory) {
-  this.parent = parent;
-  this.path = path;
+	this.parent = parent;
+	this.path = path;
 
-  if (lastModified) {
-    this.lastModified = lastModified;
-  }
+	if (lastModified) {
+		this.lastModified = lastModified;
+	}
 
-  if (isDirectory === true) {
-    this.isDirectory = true;
+	if (isDirectory === true) {
+		this.isDirectory = true;
 
-  } else if (size !== undefined) {
-    this.size = size;
-  }
+	} else if (size !== undefined) {
+		this.size = size;
+	}
 
-  var idx = path.lastIndexOf('/');
-  if (idx > 0) {
-    this.name = path.substring(idx + 1);
-  } else {
-    this.name = path;
-  }
+	var idx = path.lastIndexOf('/');
+	if (idx > 0) {
+		this.name = path.substring(idx + 1);
+	} else {
+		this.name = path;
+	}
 
-  if (parent) {
-    this._root = parent._root;
+	if (parent) {
+		this._root = parent._root;
 
-  } else {
-    this._root = this;
-  }
+	} else {
+		this._root = this;
+	}
 };
 
 File.prototype.find = function(path, callback) {
-  var fs = path.split("/");
+	var fs = path.split("/");
 
-  // console.log("Find ",path);
+	this.list(function(error, list) {
+		if (error) {
+			return callback(error);
+		}
 
-  this.list(function(error, list) {
-    if (error) {
-      return callback(error);
-    }
+		var f = list[fs[0]];
 
-    var f = list[fs[0]];
+		if (!f) {
+			return callback(null);
+		}
 
-    if (!f) {
-      // console.log("NOT FOUND",fs[0]);
+		fs.shift();
 
-      return callback(null);
-    }
+		if (fs.length) {
+			if (!f.isDirectory) {
+				return callback(null);
+			}
+			return f.find(fs.join('/'), callback);
+		}
 
-    // console.log("f=",f);
-
-    fs.shift();
-
-    if (fs.length) {
-      if (!f.isDirectory) {
-        return callback(null);
-      }
-      return f.find(fs.join('/'), callback);
-    }
-
-    callback(null, f);
-  });
+		callback(null, f);
+	});
 };
 
 module.exports = File;

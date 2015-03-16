@@ -1,24 +1,23 @@
 {
-  "name": "node-hsync",
+  "name": "hsync",
   "version": "0.1.0",
-  "description": "Hubic nodejs sync",
+  "description": "Hubic directories synchronisation",
   "main": "main.js",
   "dependencies": {
-    "commander": "latest",
-    "ovh": "latest",
-    "async": "latest",
+  	"async": "latest",
+  	"commander": "latest",
+  	"hubic-auth": "latest",
+    "mime": "latest",
     "request": "latest",
     "sprintf": "latest",
-    "underscore": "latest",
-    "mime": "latest"
-  },
+    "underscore": "latest"
+ },
   "scripts": {
-   },
-  "repository": "",
+  },
+  "repository": "git://github.com/oeuillot/node-hsync",
   "keywords": [
     "Node.js",
-    "Hubic",
-    "sync"
+    "hubic"
   ],
   "author": "Olivier Oeuillot",
   "license": "BSD",
