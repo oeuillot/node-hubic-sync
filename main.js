@@ -57,7 +57,7 @@ function goHubic() {
 		var lroot = LFile.createRoot(program.source);
 		hroot.find(destination, function(error, hfile) {
 			if (error) {
-				console.error("ERROR: " + error);
+				console.error("Can not find destination: '" + destination + "' ", error);
 				return;
 			}
 
@@ -70,7 +70,7 @@ function goHubic() {
 
 			syncer.sync(lroot, hfile, function(error) {
 				if (error) {
-					console.error("ERROR: ", error);
+					console.error("Can not sync: ", error);
 					return;
 				}
 
