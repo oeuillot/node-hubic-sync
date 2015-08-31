@@ -62,10 +62,10 @@ function goHubic() {
 			}
 
 			if (!lroot) {
-				throw new Error("Invalid local root " + lroot);
+				throw new Error("Invalid local root for source " + program.source);
 			}
 			if (!hfile) {
-				throw new Error("Invalid remote root " + hfile);
+				throw new Error("Invalid remote root for destination " + destination);
 			}
 
 			syncer.sync(lroot, hfile, function(error) {
