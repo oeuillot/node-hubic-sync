@@ -85,7 +85,7 @@ function goHubic() {
           return;
         }
 
-        console.log("Flush ...");
+        console.log("Waiting last uploads ...");
 
         hubic.flush(function() {
           console.log("Done !");
