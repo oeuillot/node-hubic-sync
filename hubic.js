@@ -78,7 +78,8 @@ Hubic.prototype.loginLog = function() {
 /**
  * Specify the container name
  * 
- * @param {string} containerName
+ * @param {string}
+ *            containerName
  */
 Hubic.prototype.select = function(containerName) {
   this._containerName = containerName;
@@ -113,7 +114,8 @@ function makeHierarchie(list, files) {
 /**
  * List files of a remote directoy
  * 
- * @param {string} path Remote path
+ * @param {string}
+ *            path Remote path
  * @param callback
  */
 Hubic.prototype.list = function(path, callback) {
@@ -197,11 +199,16 @@ Hubic.prototype.list = function(path, callback) {
 /**
  * Upload file to HUBIC server
  * 
- * @param {string} remotePath Remote path  (The path, not the URL)
- * @param {string} localPath  The path of the file which will be uploaded
- * @param {number} [size]  Size of the file
- * @param {Object} [hlist] List of the remove directory
- * @param callback Called when done or if any error
+ * @param {string}
+ *            remotePath Remote path (The path, not the URL)
+ * @param {string}
+ *            localPath The path of the file which will be uploaded
+ * @param {number}
+ *            [size] Size of the file
+ * @param {Object}
+ *            [hlist] List of the remove directory
+ * @param callback
+ *            Called when done or if any error
  */
 Hubic.prototype.put = function(remotePath, localPath, size, hlist, callback) {
   switch (arguments.length) {
@@ -240,7 +247,8 @@ Hubic.prototype['delete'] = Hubic.prototype.$delete;
 /**
  * Create a remote directory
  * 
- * @param {string} localPath Remote path of new directory
+ * @param {string}
+ *            localPath Remote path of new directory
  * @param callback
  */
 Hubic.prototype.newDirectory = function(localPath, callback) {
@@ -256,8 +264,10 @@ Hubic.prototype.newDirectory = function(localPath, callback) {
 /**
  * Move a file
  * 
- * @param {string} dst Target remote path
- * @param {string} src Source remote path
+ * @param {string}
+ *            dst Target remote path
+ * @param {string}
+ *            src Source remote path
  * @param callback
  */
 Hubic.prototype.moveTo = function(dst, src, callback) {
@@ -274,6 +284,38 @@ Hubic.prototype.moveTo = function(dst, src, callback) {
       self._swift.$delete(self._containerName, src, false, callback);
     });
   }, callback);
+};
+
+/**
+ * Flush all pending uploads
+ * 
+ * @param callback
+ */
+Hubic.prototype.flush = function(callback) {
+
+  var callQueue = this._callQueue;
+  var uploadQueue = this._uploadQueue;
+
+  function waitUpload() {
+    if (!uploadQueue.idle()) {
+      return callback();
+    }
+
+    uploadQueue.drain = function() {
+      uploadQueue.drain = null;
+
+      callback();
+    }
+  }
+
+  if (!callQueue.idle()) {
+    return waitUpload();
+  }
+  callQueue.drain = function() {
+    callQueue.drain = null;
+
+    waitUpload();
+  }
 };
 
 module.exports = Hubic;

@@ -7,8 +7,8 @@ var LFile = require('./lfile.js');
 var Syncer = require('./syncer.js');
 
 module.exports = {
-    Hubic: Hubic,
-    Syncer: Syncer
+  Hubic : Hubic,
+  Syncer : Syncer
 };
 
 program.option("-s, --source <path>", "Source directory");
@@ -85,7 +85,11 @@ function goHubic() {
           return;
         }
 
-        console.log("Done !");
+        console.log("Flush ...");
+
+        hubic.flush(function() {
+          console.log("Done !");
+        });
       });
     });
   });
