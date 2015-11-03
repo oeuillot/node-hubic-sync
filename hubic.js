@@ -297,7 +297,7 @@ Hubic.prototype.flush = function(callback) {
   var uploadQueue = this._uploadQueue;
 
   function waitUpload() {
-    if (!uploadQueue.idle()) {
+    if (uploadQueue.idle()) {
       return callback();
     }
 
@@ -308,7 +308,7 @@ Hubic.prototype.flush = function(callback) {
     }
   }
 
-  if (!callQueue.idle()) {
+  if (callQueue.idle()) {
     return waitUpload();
   }
   callQueue.drain = function() {
