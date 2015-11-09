@@ -1,5 +1,6 @@
 var program = require('commander');
 var util = require('util');
+var async = require('async');
 
 var Hubic = require('./hubic.js');
 var HFile = require('./hfile.js');
