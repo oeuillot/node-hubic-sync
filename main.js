@@ -83,6 +83,7 @@ if (program.scenario) {
   var hubic = new Hubic(program, function(error, hubic) {
     if (error) {
       console.error("Can not create hubic context: ", error);
+      process.exit(1);
       return;
     }
 
@@ -95,9 +96,13 @@ if (program.scenario) {
         return callback("Source or destination are not defined !");
       }
 
+      console.log("Sync source=", source, " destination=", destination);
+
       goHubic(hubic, source, destination, function(error) {
         if (error) {
           console.error("Can not sync: ", error);
+
+          callback();
           return;
         }
 
@@ -108,6 +113,7 @@ if (program.scenario) {
 
       hubic.flush(function() {
         console.log("Done !");
+        process.exit(0);
       });
     });
   });
