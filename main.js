@@ -140,6 +140,7 @@ var hubic = new Hubic(program, function(error, hubic) {
 
     hubic.flush(function() {
       console.log("Done !");
+      process.exit(0);
     });
   });
 });
