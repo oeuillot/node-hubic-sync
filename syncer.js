@@ -99,7 +99,7 @@ class Syncer {
       return;
     }
 
-    upfile = hdir.newFile(lfile.name);
+    var upfile = hdir.newFile(lfile.name);
 
     if (!this._debug) {
       console.log("U " + lfile.path + "       ");
