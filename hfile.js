@@ -42,16 +42,11 @@ class HFile extends File {
 
       var children = {};
 
-      for (var i = 0; i < list.length; i++) {
-        var child = list[i];
-
-        // console.error("Child " + child.name + "' lastModified=" +
-        // child.lastModifier + " size=" + child.length + " ", child);
-
+      list.forEach((child) => {
         var f = new HFile(this, child.name, child.lastModified, child.length, child.directory);
 
         children[f.name] = f;
-      }
+      });
 
       if (this._root._weakMap) {
         this._root._weakMap.set(this.path, children);
@@ -192,6 +187,8 @@ class HFile extends File {
   }
 
   static createRoot(hubic) {
+    assert(hubic, "Invalid hubic parameter");
+    
     var root = new HFile(null, "/", null, undefined, true, hubic._options);
     root._hubic = hubic;
 

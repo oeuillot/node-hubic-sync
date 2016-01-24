@@ -19,26 +19,27 @@ class Hubic {
 
     this._callQueue = Async.queue((task, callback) => {
       task(callback);
+
     }, this._options.maxRequest || 2);
 
     this._uploadQueue = Async.queue((task, callback) => {
       task(callback);
+    
     }, this._options.maxUpload || 2);
 
     this._containerName = this._options.containerName || "default";
 
-    var auth = new Authentification({
-    });
+    var auth = new Authentification(this._options);
     this._auth = auth;
 
-    new Swift((callback2) => {
+    new Swift((callback) => {
 
       auth.load(null, (error) => {
         if (error) {
           return callback(error);
         }
 
-        auth.getStorageInfos(() => {
+        auth.getStorageInfos((callback) => {
           callback(null, this._options.username, this._options.password);
 
         }, (error, tokens) => {
@@ -49,10 +50,9 @@ class Hubic {
 
           debugLog("[Login] Got HUBIC profile informations"); // "+util.inspect(hubic));
 
-          callback2(null, {
+          callback(null, {
             storageUrl : tokens.endpoint,
             id : tokens.token
-
           });
         });
       });
@@ -300,4 +300,5 @@ class Hubic {
     }
   }
 }
+
 module.exports = Hubic;

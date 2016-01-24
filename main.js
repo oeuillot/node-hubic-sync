@@ -41,6 +41,7 @@ program.option("--clientId <id>", "Specify the Hubic application Client ID");
 program.option("--clientSecret <secret>", "Specify Hubic application Client Secret");
 program.option("--username <username>", "Specify Hubic username");
 program.option("--password <password>", "Specify Hubic password");
+program.option("--redirectURI <redirectURI>", "Specify Hubic redirect URI");
 program.parse(process.argv);
 
 function goHubic(hubic, source, destination, callback) {
@@ -132,13 +133,13 @@ if (!program.destination) {
   process.exit(1);
 }
 
-var hubic = new Hubic(program, function(error, hubic) {
+var hubic = new Hubic(program, (error, hubic) => {
   if (error) {
     console.error("Can not create hubic context: ", error);
     return;
   }
 
-  goHubic(hubic, program.source, program.destination, function(error) {
+  goHubic(hubic, program.source, program.destination, (error) => {
     if (error) {
       console.error("Can not sync: ", error);
       return;
@@ -146,7 +147,7 @@ var hubic = new Hubic(program, function(error, hubic) {
 
     console.log("Waiting last uploads ...");
 
-    hubic.flush(function() {
+    hubic.flush(() => {
       console.log("Done !");
       process.exit(0);
     });
