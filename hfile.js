@@ -1,6 +1,7 @@
 /*jslint node: true, plusplus:true, node: true, esversion: 6 */
 "use strict";
 
+var assert = require('assert');
 var Async = require('async');
 var Util = require("util");
 
