@@ -1,209 +1,201 @@
+/*jslint node: true, plusplus:true, node: true, esversion: 6 */
+"use strict";
+
 var Async = require('async');
 var Util = require("util");
 
 var File = require('./file.js');
 
-var HFile = function(parent, path, lastModified, size, isDirectory, options) {
-	HFile.super_.call(this, parent, path, lastModified, size, isDirectory, options);
+class HFile extends File {
+  constructor(parent, path, lastModified, size, isDirectory, options) {
+    super(parent, path, lastModified, size, isDirectory, options);
 
-	this._moveToEachLimit = 4;
-	this._deleteEachLimit = 4;
+    this._moveToEachLimit = 4;
+    this._deleteEachLimit = 4;
 
-	if (!parent) {
-		if (options && options.weakMap) {
-			this._weakMap2 = {
-				get: function(key) {
-					return this[key];
-				},
-				set: function(key, value) {
-					return this[key] = value;
-				}
-			};
-		}
-	}
-};
+    if (!parent) {
+      if (options && options.weakMap) {
+        this._weakMap2 = {
+            get: function(key) {
+              return this[key];
+            },
+            set: function(key, value) {
+              return this[key] = value;
+            }
+        };
+      }
+    }
+  }
 
-Util.inherits(HFile, File);
+  list(callback) {
+    if (this._root._weakMap) {
+      var children = this._root._weakMap.get(this.path);
+      if (children) {
+        return callback(null, children);
+      }
+    }
 
-HFile.prototype.list = function(callback) {
-	if (this._root._weakMap) {
-		var children = this._root._weakMap.get(this.path);
-		if (children) {
-			return callback(null, children);
-		}
-	}
+    this._root._hubic.list(this.path, (error, list) => {
+      if (error) {
+        return callback(error);
+      }
 
-	var self = this;
-	this._root._hubic.list(this.path, function(error, list) {
-		if (error) {
-			return callback(error);
-		}
+      var children = {};
 
-		var children = {};
+      for (var i = 0; i < list.length; i++) {
+        var child = list[i];
 
-		for (var i = 0; i < list.length; i++) {
-			var child = list[i];
+        // console.error("Child " + child.name + "' lastModified=" +
+        // child.lastModifier + " size=" + child.length + " ", child);
 
-			// console.error("Child " + child.name + "' lastModified=" +
-			// child.lastModifier + " size=" + child.length + " ", child);
+        var f = new HFile(this, child.name, child.lastModified, child.length, child.directory);
 
-			var f = new HFile(self, child.name, child.lastModified, child.length, child.directory);
+        children[f.name] = f;
+      }
 
-			children[f.name] = f;
-		}
+      if (this._root._weakMap) {
+        this._root._weakMap.set(this.path, children);
+      }
+      callback(null, children);
+    });
+  }
 
-		if (self._root._weakMap) {
-			self._root._weakMap.set(this.path, children);
-		}
-		callback(null, children);
-	});
-};
+  put(localFile, hlist, callback) {
+    var date = new Date();
 
-HFile.prototype.put = function(localFile, hlist, callback) {
-	var date = new Date();
-	var self = this;
+    if (this.isDirectory) {
+      this._root._hubic.put(this.path + "/" + localFile.name, localFile.localPath, localFile.size, hlist, (error) => {
+        if (error) {
+          return callback(error);
+        }
 
-	if (this.isDirectory) {
-		this._root._hubic.put(this.path + "/" + localFile.name, localFile.localPath, localFile.size, hlist,
-				function(error) {
-					if (error) {
-						return callback(error);
-					}
+        var f = new HFile(this, this.path + "/" + localFile.name, date, localFile.size);
 
-					var f = new HFile(self, self.path + "/" + localFile.name, date, localFile.size);
+        callback(null, f);
+      });
+      return;
+    }
 
-					callback(null, f);
-				});
-		return;
-	}
+    this._root._hubic.put(this.path, localFile.localPath, localFile.size, hlist, (error) => {
+      if (error) {
+        return callback(error);
+      }
 
-	this._root._hubic.put(this.path, localFile.localPath, localFile.size, hlist, function(error) {
-		if (error) {
-			return callback(error);
-		}
+      var f = new HFile(this.parent, this.path, date, localFile.size);
 
-		var f = new HFile(self.parent, self.path, date, localFile.size);
+      callback(null, f);
+    });
+  }
 
-		callback(null, f);
-	});
-};
+  newDirectory(name, callback) {
+    var date = new Date();
+    this._root._hubic.newDirectory(this.path + "/" + name, (error) => {
+      if (error) {
+        return callback(error);
+      }
 
-HFile.prototype.newDirectory = function(name, callback) {
-	var date = new Date();
-	var self = this;
-	this._root._hubic.newDirectory(this.path + "/" + name, function(error) {
-		if (error) {
-			return callback(error);
-		}
+      var f = new HFile(this, this.path + "/" + name, date, 0, true);
 
-		var f = new HFile(self, self.path + "/" + name, date, 0, true);
+      callback(null, f);
+    });
+  }
 
-		callback(null, f);
-	});
-};
+  moveTo(dest, callback) {
+    if (!dest.isDirectory) {
+      return callback("dest(" + dest.path + ") is not a directory");
+    }
 
-HFile.prototype.moveTo = function(dest, callback) {
-	if (!dest.isDirectory) {
-		return callback("dest(" + dest.path + ") is not a directory");
-	}
+    if (this.isDirectory) {
+      // Il faut faire à la main !
+      dest.newDirectory(this.name, (error, hnew) => {
+        if (error) {
+          return callback(error);
+        }
 
-	if (this.isDirectory) {
-		var self = this;
+        this.list((error, list) => {
+          if (error) {
+            return callback(error);
+          }
 
-		// Il faut faire à la main !
-		dest.newDirectory(this.name, function(error, hnew) {
-			if (error) {
-				return callback(error);
-			}
+          Async.eachLimit(Object.keys(list), this._moveToEachLimit, (name, callback) => {
+            var item = list[name];
 
-			self.list(function(error, list) {
-				if (error) {
-					return callback(error);
-				}
+            item.moveTo(hnew, callback);
 
-				Async.eachLimit(Object.keys(list), self._moveToEachLimit, function(name, callback) {
-					var item = list[name];
+          }, (error) => {
+            if (error) {
+              return callback(error);
+            }
 
-					item.moveTo(hnew, callback);
+            this.$delete((error) => {
+              if (error) {
+                return callback(error);
+              }
 
-				}, function(error) {
-					if (error) {
-						return callback(error);
-					}
+              callback(null, hnew);
+            });
+          });
+        });
+      });
 
-					self.$delete(function(error) {
-						if (error) {
-							return callback(error);
-						}
+      return;
+    }
 
-						callback(null, hnew);
-					});
-				});
-			});
-		});
+    this._root._hubic.moveTo(dest.path + "/" + this.name, this.path, callback);
+  }
 
-		return;
-	}
+  rename(newName, callback) {
+    if (this.isDirectory) {
+      return callback("dest(" + this.path + ") is a directory");
+    }
+    this._root._hubic.moveTo(this.parent.path + "/" + newName, this.path, callback);
+  }
 
-	this._root._hubic.moveTo(dest.path + "/" + this.name, this.path, callback);
-};
+  newFile(name) {
+    if (!this.isDirectory) {
+      return callback("dest(" + this.path + ") is not a directory");
+    }
 
-HFile.prototype.rename = function(newName, callback) {
-	if (this.isDirectory) {
-		return callback("dest(" + this.path + ") is a directory");
-	}
-	this._root._hubic.moveTo(this.parent.path + "/" + newName, this.path, callback);
-};
+    var f = new HFile(this, this.path + "/" + name, new Date(), 0, false);
 
-HFile.prototype.newFile = function(name) {
-	if (!this.isDirectory) {
-		return callback("dest(" + this.path + ") is not a directory");
-	}
+    return f;
+  }
 
-	var f = new HFile(this, this.path + "/" + name, new Date(), 0, false);
+  $delete(ignoreError, callback) {
+    if (typeof (ignoreError) == "function") {
+      callback = ignoreError;
+      ignoreError = undefined;
+    }
 
-	return f;
-};
+    if (!this.isDirectory) {
+      this._root._hubic.$delete(this.path, ignoreError, callback);
+      return;
+    }
 
-HFile.prototype.$delete = function(ignoreError, callback) {
-	if (typeof (ignoreError) == "function") {
-		callback = ignoreError;
-		ignoreError = undefined;
-	}
+    // Suppression recursive
+    this.list((error, files) => {
+      if (error) {
+        return callback(error);
+      }
 
-	if (!this.isDirectory) {
-		this._root._hubic.$delete(this.path, ignoreError, callback);
-		return;
-	}
+      Async.eachLimit(files, this._deleteEachLimit, (item, callback) => {
+        item.$delete(ignoreError, callback);
 
-	var self = this;
+      }, (error) => {
+        if (error) {
+          return callback(error);
+        }
 
-	// Suppression recursive
-	this.list(function(error, files) {
-		if (error) {
-			return callback(error);
-		}
+        this._root._hubic.$delete(this.path, ignoreError, callback);
+      });
+    });
+  }
 
-		Async.eachLimit(files, self._deleteEachLimit, function(item, callback) {
-			item.$delete(ignoreError, callback);
+  static createRoot(hubic) {
+    var root = new HFile(null, "/", null, undefined, true, hubic._options);
+    root._hubic = hubic;
 
-		}, function(error) {
-			if (error) {
-				return callback(error);
-			}
-
-			self._root._hubic.$delete(self.path, ignoreError, callback);
-		});
-	});
-};
-
-HFile.prototype['delete'] = HFile.prototype.$delete;
-
-HFile.createRoot = function(hubic) {
-	var root = new HFile(null, "/", null, undefined, true, hubic._options);
-	root._hubic = hubic;
-
-	return root;
-};
-
+    return root;
+  }
+}
 module.exports = HFile;

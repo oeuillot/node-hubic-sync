@@ -1,58 +1,63 @@
-var File = function(parent, path, lastModified, size, isDirectory) {
-	this.parent = parent;
-	this.path = path;
+/*jslint node: true, plusplus:true, node: true, esversion: 6 */
+"use strict";
 
-	if (lastModified) {
-		this.lastModified = lastModified;
-	}
+class File {
+  constructor(parent, path, lastModified, size, isDirectory) {
+    this.parent = parent;
+    this.path = path;
 
-	if (isDirectory === true) {
-		this.isDirectory = true;
+    if (lastModified) {
+      this.lastModified = lastModified;
+    }
 
-	} else if (size !== undefined) {
-		this.size = size;
-	}
+    if (isDirectory === true) {
+      this.isDirectory = true;
 
-	var idx = path.lastIndexOf('/');
-	if (idx > 0) {
-		this.name = path.substring(idx + 1);
-	} else {
-		this.name = path;
-	}
+    } else if (size !== undefined) {
+      this.size = size;
+    }
 
-	if (parent) {
-		this._root = parent._root;
+    var idx = path.lastIndexOf('/');
+    if (idx > 0) {
+      this.name = path.substring(idx + 1);
+    } else {
+      this.name = path;
+    }
 
-	} else {
-		this._root = this;
-	}
-};
+    if (parent) {
+      this._root = parent._root;
 
-File.prototype.find = function(path, callback) {
-	var fs = path.split("/");
+    } else {
+      this._root = this;
+    }
+  }
 
-	this.list(function(error, list) {
-		if (error) {
-			return callback(error);
-		}
+  find(path, callback) {
+    var fs = path.split("/");
 
-		var f = list[fs[0]];
+    this.list((error, list) => {
+      if (error) {
+        return callback(error);
+      }
 
-		if (!f) {
-			return callback(null);
-		}
+      var f = list[fs[0]];
 
-		fs.shift();
+      if (!f) {
+        return callback(null);
+      }
 
-		if (fs.length) {
-			if (!f.isDirectory) {
-				return callback(null);
-			}
-			return f.find(fs.join('/'), callback);
-		}
+      fs.shift();
 
-		callback(null, f);
-	});
-};
+      if (fs.length) {
+        if (!f.isDirectory) {
+          return callback(null);
+        }
+        return f.find(fs.join('/'), callback);
+      }
+
+      callback(null, f);
+    });
+  }
+}
 
 module.exports = File;

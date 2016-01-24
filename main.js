@@ -1,3 +1,6 @@
+/*jslint node: true, plusplus:true, node: true, esversion: 6 */
+"use strict";
+
 var program = require('commander');
 var util = require('util');
 var async = require('async');
@@ -32,13 +35,12 @@ program.option("--backup-directory-name <name>", "Backup directory name");
 program.option("--container-name <name>", "Swift container name");
 program.option("--purge-uploading-files", "Delete not used uploading files");
 program.option("--progress", "Show progress");
-program.option("--versioning",
-    "Move modified or deleted file to a backup folder");
-program.option("--tokenPath <path>",
-    "Specify the path of the last authorized token");
+program.option("--versioning", "Move modified or deleted file to a backup folder");
+program.option("--tokenPath <path>", "Specify path of the last authorized token");
 program.option("--clientId <id>", "Specify the Hubic application Client ID");
-program.option("--clientSecret <secret>",
-    "Specify the Hubic application Client Secret");
+program.option("--clientSecret <secret>", "Specify Hubic application Client Secret");
+program.option("--username <username>", "Specify Hubic username");
+program.option("--password <password>", "Specify Hubic password");
 program.parse(process.argv);
 
 function goHubic(hubic, source, destination, callback) {
