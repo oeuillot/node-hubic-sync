@@ -4,6 +4,7 @@
 var program = require('commander');
 var util = require('util');
 var async = require('async');
+var debug = require('debug')('hsync');
 
 var Hubic = require('./hubic.js');
 var HFile = require('./hfile.js');
@@ -42,10 +43,12 @@ program.option("--clientSecret <secret>", "Specify Hubic application Client Secr
 program.option("--username <username>", "Specify Hubic username");
 program.option("--password <password>", "Specify Hubic password");
 program.option("--redirectURI <redirectURI>", "Specify Hubic redirect URI");
+program.option("--saveTokens", "Hubic tokens must be saved");
 program.parse(process.argv);
 
 function goHubic(hubic, source, destination, callback) {
-
+  debug("Synchronize source=", source, "destination=", destination);
+  
   var syncer = new Syncer(hubic, program);
 
   if (destination.charAt(0) === '/') {
@@ -62,12 +65,12 @@ function goHubic(hubic, source, destination, callback) {
     }
 
     if (!lroot) {
-      return callback(new Error("Invalid local root for source " +
-          program.source));
+      callback(new Error("Invalid local root for source " + program.source));
+      return;
     }
     if (!hfile) {
-      return callback(new Error("Invalid remote root for destination " +
-          destination));
+      callback(new Error("Invalid remote root for destination " + destination));
+      return;
     }
 
     syncer.sync(lroot, hfile, function(error) {
@@ -75,6 +78,7 @@ function goHubic(hubic, source, destination, callback) {
         return callback(error);
       }
 
+      debug("Synchronize ended");
       callback();
     });
   });
@@ -82,6 +86,8 @@ function goHubic(hubic, source, destination, callback) {
 
 if (program.scenario) {
   var scenario = require(program.scenario);
+  
+  debug("Scenarii loaded", scenario);
 
   var hubic = new Hubic(program, function(error, hubic) {
     if (error) {
@@ -89,6 +95,8 @@ if (program.scenario) {
       process.exit(1);
       return;
     }
+    
+    debug("Hubic engine created");
 
     async.eachSeries(scenario, function(sc, callback) {
       var source = sc.source;
@@ -98,8 +106,6 @@ if (program.scenario) {
         console.error("Source or destination are not defined !");
         return callback("Source or destination are not defined !");
       }
-
-      console.log("Sync source=", source, " destination=", destination);
 
       goHubic(hubic, source, destination, function(error) {
         if (error) {
@@ -112,10 +118,10 @@ if (program.scenario) {
         callback();
       });
     }, function(error) {
-      console.log("Waiting last uploads ...");
+      debug("Waiting last uploads ...");
 
       hubic.flush(function() {
-        console.log("Done !");
+        debug("Uploads flushed !");
         process.exit(0);
       });
     });
@@ -145,10 +151,10 @@ var hubic = new Hubic(program, (error, hubic) => {
       return;
     }
 
-    console.log("Waiting last uploads ...");
+    debug("Waiting last uploads ...");
 
     hubic.flush(() => {
-      console.log("Done !");
+      debug("Uploads flushed !");
       process.exit(0);
     });
   });

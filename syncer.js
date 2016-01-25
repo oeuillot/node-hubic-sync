@@ -86,7 +86,7 @@ class Syncer {
 
   _syncHFile(lfile, hdir, hlist, callback) {
 
-    debug("[Sync ] file local='" + lfile.path + "' remote='" + hdir.path + "'");
+    debug("file local='" + lfile.path + "' remote='" + hdir.path + "'");
 
     if (lfile.isDirectory) {
       hdir.newDirectory(lfile.name, (error, newhdir) => {
@@ -113,7 +113,7 @@ class Syncer {
     assert(ldir, "Invalid local dir parameter " + ldir);
     assert(hdir, "Invalid remote dir parameter " + hdir);
 
-    debug("[Sync ] Directory local=", ldir.path, "remote=", hdir.path);
+    debug("Directory local=", ldir.path, "remote=", hdir.path);
 
     Async.parallel([ (callback) => {
       ldir.list(callback);
@@ -134,7 +134,7 @@ class Syncer {
         var lfile = llist[name];
         var hfile = hlist[name];
 
-        debug("[Sync ] lfile=", ((lfile) ? lfile.path : null), "hfile=", ((hfile) ? hfile.path : null));
+        debug("lfile=", ((lfile) ? lfile.path : null), "hfile=", ((hfile) ? hfile.path : null));
 
         if (hfile) {
           delete hlist[name];
@@ -149,7 +149,7 @@ class Syncer {
             }
           }
 
-          debug("[Sync ] File modified  directory=", lfile.isDirectory, "/",
+          debug("File modified  directory=", lfile.isDirectory, "/",
               hfile.isDirectory, "date=", hfile.lastModified, "/",
               lfile.lastModified, "size=", hfile.size, "/", lfile.size, "       ");
 

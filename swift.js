@@ -36,7 +36,7 @@ class Swift {
       options = {};
     }
 
-    debug("[swift] getFiles: containerName='" + containerName + "' path='" +
+    debug("getFiles: containerName='" + containerName + "' path='" +
         options.prefix + "'");
 
     options.delimiter = "/";
@@ -80,7 +80,7 @@ class Swift {
   }
 
   $delete(containerName, path, ignoreError, callback) {
-    debug("[swift] delete: containerName=", containerName, "path=", path);
+    debug("delete: containerName=", containerName, "path=", path);
 
     var targetURL = URL.parse(this.tokens.storageUrl + '/' + containerName + '/' +
         normalizePath(path));
@@ -121,7 +121,7 @@ class Swift {
   }
 
   mkdir(containerName, path, callback) {
-    debug("[swift] mkdir: containerName=", containerName, "path=", path);
+    debug("mkdir: containerName=", containerName, "path=", path);
 
     var targetURL = URL.parse(this.tokens.storageUrl + '/' + containerName + "/" +
         normalizePath(path));
@@ -157,7 +157,7 @@ class Swift {
   }
 
   copy(containerName, destName, sourceName, callback) {
-    debug("[swift] copy: destName=", destName, "sourceName=",sourceName);
+    debug("copy: destName=", destName, "sourceName=",sourceName);
 
     var targetURL = URL.parse(this.tokens.storageUrl + '/' + containerName + '/' +
         normalizePath(destName));
@@ -295,7 +295,7 @@ class Swift {
   }
 
   mergeSegments(containerName, remotePath, segmentsPath, size, callback) {
-    debug("[swift] mergeSegments: path=", remotePath, "segmentsPath=", segmentsPath);
+    debug("mergeSegments: path=", remotePath, "segmentsPath=", segmentsPath);
 
     var targetURL = URL.parse(this.tokens.storageUrl + '/' + containerName + '/' +
         normalizePath(remotePath));
@@ -335,7 +335,7 @@ class Swift {
   }
 
   putSegment(containerName, remotePath, localPath, size, partId, callback) {
-    debug("[swift] putSegment: remotePath=", remotePath, "localPath=", localPath, "size=",size, "partId=", partId);
+    debug("putSegment: remotePath=", remotePath, "localPath=", localPath, "size=",size, "partId=", partId);
 
     var targetURL = URL.parse(this.tokens.storageUrl + '/' + containerName + '/' +
         normalizePath(remotePath));
